@@ -4,7 +4,7 @@ from .models import Order
 from django.conf import settings
 
 @shared_task(bind=True, max_retries=3)
-def send_order_confirmation_email(order_id):
+def send_order_confirmation_email(order_id, _):
     try:
         order = Order.objects.get(id=order_id)
         subject = f"Order Confirmation - Order #{order.id}"

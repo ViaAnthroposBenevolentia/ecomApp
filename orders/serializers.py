@@ -37,8 +37,8 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderItem.objects.create(order=order, product=product, quantity=quantity, price=price)
             total += price
             # Update product stock atomically
-            product.stock = models.F('stock') - quantity
-            product.save()
+            # product.stock = models.F('stock') - quantity
+            # product.save()
         order.total_price = total
         order.save()
         return order

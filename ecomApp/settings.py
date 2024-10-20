@@ -14,9 +14,9 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', ]
+ALLOWED_HOSTS = ['*']
 
-CELERY_BROKER_URL = 'amqp://user:password@rabbitmq:5672/ecomApp'
+CELERY_BROKER_URL = 'amqp://user:password@rabbitmq:5672/ecomapp'
 CELERY_RESULT_BACKEND = 'rpc://'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'django_filters',
-    # 'rest_framework_simplejwt',
+    'rest_framework_simplejwt',
     'drf_yasg',
 
     'rest_framework',
@@ -70,10 +70,11 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
         'rest_framework.throttling.AnonRateThrottle',
     ],
+    
     'DEFAULT_THROTTLE_RATES': {
-        'user': '1000/day',
-        'anon': '100/day',
-    },
+        'anon': '100/minute',  # 100 requests per minute for anonymous users
+        'user': '1000/minute',  # 1000 requests per minute for authenticated users
+    }
 }
 
 SIMPLE_JWT = {
@@ -94,14 +95,17 @@ SIMPLE_JWT = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',  # Adjust if using Docker
+        'LOCATION': 'redis://127.0.0.1:6379/1',  # Local Redis
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'IGNORE_EXCEPTIONS': True,  # Gracefully handle Redis failures
-        }
+        },
+        'KEY_PREFIX': 'ecommerce'
     }
 }
 
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']
+
+# Optional: Session configuration using Redis cache
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
@@ -140,6 +144,10 @@ MIDDLEWARE = [
 INSTALLED_APPS += ['debug_toolbar',]
 
 MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware',]
+
+MIDDLEWARE += [
+    'django.middleware.csrf.CsrfViewMiddleware',
+]
 INTERNAL_IPS = [
     '127.0.0.1',
     'localhost',
@@ -168,12 +176,12 @@ WSGI_APPLICATION = 'ecomApp.wsgi.application'
 
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
