@@ -16,3 +16,4 @@ class ProductViewSet(viewsets.ModelViewSet):
     filterset_fields = ['category', 'price']
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'created_at']
+    ordering = ['created_at']  # Default ordering
