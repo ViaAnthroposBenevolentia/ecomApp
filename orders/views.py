@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions
 from .models import Order
 from .serializers import OrderSerializer
-# from django.db import transaction
-# from .tasks import send_order_confirmation_email
+from django.db import transaction
+from .tasks import send_order_confirmation_email
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
@@ -20,8 +20,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         return Order.objects.filter(user=self.request.user).prefetch_related('items__product')
 
+    @transaction.atomic
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-        # with transaction.atomic():
-        #     order = serializer.save(user=self.request.user)
-        #     send_order_confirmation_email.delay(order.id)
+        with transaction.atomic():
+            order = serializer.save(user=self.request.user)
+            send_order_confirmation_email.delay(order.id)

@@ -14,8 +14,14 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', ]
 
+CELERY_BROKER_URL = 'amqp://user:password@rabbitmq:5672/ecomApp'
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 # Application definition
 
@@ -85,19 +91,19 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': 'redis://redis:6379/1',  # Adjust if using Docker
-#         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#             'IGNORE_EXCEPTIONS': True,  # Gracefully handle Redis failures
-#         }
-#     }
-# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',  # Adjust if using Docker
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'IGNORE_EXCEPTIONS': True,  # Gracefully handle Redis failures
+        }
+    }
+}
 
-# SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-# SESSION_CACHE_ALIAS = 'default'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
 
 SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,
@@ -109,6 +115,7 @@ SWAGGER_SETTINGS = {
         }
     },
 }
+
 
 
 AUTH_USER_MODEL = 'users.User'  # Custom user model
@@ -129,6 +136,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+INSTALLED_APPS += ['debug_toolbar',]
+
+MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware',]
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+]
+
 
 ROOT_URLCONF = 'ecomApp.urls'
 

@@ -15,6 +15,9 @@ from rest_framework import permissions
 from django.conf import settings
 from django.conf.urls.static import static
 
+import debug_toolbar
+
+
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'products', ProductViewSet)
@@ -47,8 +50,9 @@ urlpatterns = [
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    # path('__debug__/', include('debug_toolbar.urls')),  # Debug Toolbar
+    path('__debug__/', include('debug_toolbar.urls')),  # Debug Toolbar
     # path('metrics/', include('django_prometheus.urls')),  # Prometheus metrics
 ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

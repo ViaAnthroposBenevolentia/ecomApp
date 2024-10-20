@@ -1,27 +1,104 @@
-version: '3'
+version: '3.8'
 
 services:
-  db:
-    image: postgres
-    environment:
-      POSTGRES_DB: ecomApp_db
-      POSTGRES_USER: ecomApp_user
-      POSTGRES_PASSWORD: zx
-    ports:
-      - "5432:5432"
-
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn ecomApp.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
+    env_file:
+      - .env
     depends_on:
       - db
+      - redis
+      - rabbitmq
+    networks:
+      - ecommerce_network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+    networks:
+      - ecommerce_network
+
+  db:
+    image: postgres:13
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - ecommerce_network
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce_network
 
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3-management
     ports:
       - "5672:5672"
-      - "15672:15672"  # For management dashboard
+      - "15672:15672"
+    env_file:
+      - .env
+    networks:
+      - ecommerce_network
+
+  celery:
+    build: .
+    command: celery -A ecomApp worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - rabbitmq
+      - redis
+    networks:
+      - ecommerce_network
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - web
+    networks:
+      - ecommerce_network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - ecommerce_network
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  ecommerce_network:
+    driver: bridge

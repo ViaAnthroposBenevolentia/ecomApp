@@ -16,3 +16,5 @@ venv/
 # Caching
 *.cache/
 *.pid
+
+static/

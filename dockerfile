@@ -1,15 +1,18 @@
-# Use the official Python image.
+# Dockerfile
 FROM python:3.9-slim
 
-# Set the working directory inside the container.
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 WORKDIR /app
 
-# Copy the requirements file and install dependencies.
-COPY requirements.txt .
+COPY requirements.txt /app/
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Copy the current directory into the container.
-COPY . .
+COPY . /app/
 
-# Run the Django development server.
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+CMD ["gunicorn", "ecomApp.wsgi:application", "--bind", "0.0.0.0:8000"]
