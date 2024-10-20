@@ -117,7 +117,7 @@ Caching was implemented at the view level within the `ProductViewSet`. The `list
 
 *Figure 3: Impact of Caching on API Response Times*
 
-![Caching Impact](https://via.placeholder.com/800x400.png?text=Caching+Performance+Chart)
+![Caching Impact](report_data/image.png)
 
 *Speculative Data: Average response time for product listings reduced from 180ms to 80ms post-caching implementation.*
 
@@ -133,7 +133,7 @@ Load testing was conducted using Locust, simulating 10,000 concurrent users maki
 
 *Figure 4: Load Testing Results*
 
-![Load Testing](https://via.placeholder.com/800x400.png?text=Load+Testing+Results)
+![Load Testing](report_data/image copy 2.png)
 
 *Speculative Data: Under 10,000 concurrent users, average response time was 120ms with a 99% success rate.*
 
@@ -153,7 +153,7 @@ The distributed task handling system successfully processed 1,000 asynchronous t
 
 *Figure 5: Celery Task Processing Metrics*
 
-![Celery Metrics](https://via.placeholder.com/800x400.png?text=Celery+Metrics+Chart)
+![Celery Metrics](report_data/image copy 3.png)
 
 *Speculative Data: Celery successfully processed 1,000 tasks/minute with an error rate below 0.1%.*
 
