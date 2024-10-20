@@ -17,3 +17,11 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get_permissions(self):
+        if self.action in ['create']:
+            self.permission_classes = [permissions.AllowAny]
+        else:
+            self.permission_classes = [permissions.IsAuthenticated]
+        return super(UserViewSet, self).get_permissions()  
+    

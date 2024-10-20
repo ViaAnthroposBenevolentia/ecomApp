@@ -42,3 +42,14 @@ class OrderSerializer(serializers.ModelSerializer):
         order.total_price = total
         order.save()
         return order
+    
+    def update(self, instance, validated_data):
+        items_data = validated_data.pop('items', None)
+        instance.is_completed = validated_data.get('is_completed', instance.is_completed)
+        instance.save()
+
+        if items_data:
+            instance.items.all().delete()
+            for item_data in items_data:
+                OrderItem.objects.create(order=instance, **item_data)
+        return instance

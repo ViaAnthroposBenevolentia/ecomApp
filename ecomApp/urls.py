@@ -37,12 +37,18 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('users.urls')),
+    path('api/', include('products.urls')),
+    path('api/', include('orders.urls')),
+    path('api/', include('core.urls')),  # Optional
     path('api/v1/', include((router.urls, 'api'), namespace='v1')),
     path('api/v1/auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # path('__debug__/', include('debug_toolbar.urls')),  # Debug Toolbar
+    # path('metrics/', include('django_prometheus.urls')),  # Prometheus metrics
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
